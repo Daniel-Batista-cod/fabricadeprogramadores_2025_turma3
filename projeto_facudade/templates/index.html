@@ -47,6 +47,16 @@
     <div class="mb-3">
       <label for="usuario" class="form-label">Nome do aluno</label>
       <input type="text" id="usuario" name="usuario" class="form-control" placeholder="Digite o nome do aluno" required />
+
+      <label for="email" class="form-label">email:</label>
+      <input type="text" id="email" name="email" class="form-control" placeholder="Digite o email do aluno" required />
+
+      <label for="senha" class="form-label">senha:</label>
+      <input type="text" id="senha" name="senha" class="form-control" placeholder="Digite a senha" required />
+
+      <label for="titulo" class="form-label">titulo</label>
+      <input type="text" id="titulo" name="titulo" class="form-control" placeholder="Digite o titulo do aluno" required />
+
     </div>
 
     <div class="mb-3">
@@ -92,6 +102,13 @@
     const usuario = document.getElementById('usuario').value.trim();
     const nota = document.getElementById('nota').value.trim();
 
+    const senha = document.getElementById('senha').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    const titulo = document.getElementById('titulo').value.trim();
+
+
+
     if (!usuario || !nota) {
       alert('Por favor, preencha todos os campos!');
       return false;
@@ -101,7 +118,7 @@
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario, nota })
+        body: JSON.stringify({ usuario, nota, senha, titulo,email })
       });
 
       if (response.ok) {

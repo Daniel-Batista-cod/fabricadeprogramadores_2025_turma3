@@ -14,11 +14,17 @@ def index():
         data = request.get_data() 
         usuario_e_nota = json.loads(data)
 
-        print(data)
-        user = Usuario(usuario_e_nota["usuario"], 'email', 'senha')
-        note = Nota(usuario_e_nota["nota"])
+        user = Usuario(
+                        nome=usuario_e_nota["usuario"],
+                        email=usuario_e_nota["email"],
+                        senha_hash=usuario_e_nota["senha"] )
+        note = Nota( 
+                        titulo=usuario_e_nota["titulo"],
+                        conteudo=usuario_e_nota["nota"])
+      
         criar_novo_usuario_e_nota(user, note)
-        return jsonify({"msg": "Usuario e nota criados com sucesso!"})
+        return jsonify({"msg": "Usuario e nota criados com sucesso!"}),201
+    
     else:
         return jsonify({'error': 'pagina não encontrada!'}), 404
 
