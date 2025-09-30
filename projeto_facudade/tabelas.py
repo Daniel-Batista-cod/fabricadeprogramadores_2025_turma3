@@ -8,10 +8,13 @@ connection.close()
 
 import datetime
 from sqlalchemy import *
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker, joinedload
+from dotenv import load_dotenv,dotenv_values
 
+load_dotenv()
 
-DATABASE_URL = "postgresql://postgres:1234@localhost:5432/postgres"
+variaveis_de_ambiente = dotenv_values()
+DATABASE_URL = variaveis_de_ambiente["DATABASE_URL"]
 
 
 engine = create_engine(DATABASE_URL)

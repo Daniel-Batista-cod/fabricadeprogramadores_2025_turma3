@@ -27,7 +27,14 @@ def index():
     
     else:
         return jsonify({'error': 'pagina não encontrada!'}), 404
-
+    
+@app.route("/api/users", methods=["GET"])
+def api_users():
+        try:
+            data = ler_dados()
+            return jsonify({"sucess": True, "data": data}),200
+        except Exception as e:
+            return jsonify({"sucess": False, "error": str(e)}),500
 
 if __name__=="__main__":
     app.run()
