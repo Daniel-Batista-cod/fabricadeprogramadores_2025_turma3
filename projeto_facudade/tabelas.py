@@ -1,32 +1,37 @@
-'''from sqlalchemy import create_engine
-
-engine = create_engine('sqlite:///:memory:')
-connection = engine.connect()
-print("Hello, SQLAlchemy!")
-connection.close()
-'''
-
 import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker, joinedload
-from dotenv import load_dotenv,dotenv_values
-
+from dotenv import load_dotenv, dotenv_values
+import os
+ 
 load_dotenv()
-
 variaveis_de_ambiente = dotenv_values()
 DATABASE_URL = variaveis_de_ambiente["DATABASE_URL"]
 
+#DATABASE_URL = os.environ.get('DATABASE_URL')
 
+# A engine gerencia as conexões com o banco
 engine = create_engine(DATABASE_URL)
 
-
+# configuração da sessão
+# a sessão é a nossa "area de trabalho" para conversar com o banco
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
+# Base Declarativa
+# Ela faz a ligação entre nossas classes e as tabelas do banco
 Base = declarative_base()
 
+usuario_endereco_associacao = Table(
+    "usuario_endereco_associacao",
+    Base.metadata,
+    Column("usuario_id", Integer, ForeignKey("usuarios.id"), primary_key=True),
+    Column("endereco_id", Integer, ForeignKey("enderecos.id"), primary_key=True),
+)
+
+# mapeamento da tabela 'usuarios' para a classe m'usuario
 class Usuario(Base):
-    __tablename__ = "usuarios"  # O nome exato da tabela no banco de dados
+
+    __tablename__ = "usuarios" # O nome exato da tabela no banco de dados
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     nome = Column(String(255), nullable=False)
@@ -35,19 +40,49 @@ class Usuario(Base):
     criado_em = Column(DateTime(timezone=True), default=datetime.datetime.now)
 
     notas = relationship("Nota", back_populates="autor")
+    usuario_enderecos = relationship("Enderecos",
+        secondary=usuario_endereco_associacao,
+        back_populates="moradores"
+        )
+
 
 class Nota(Base):
     __tablename__ = "notas"
+    
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_usuario = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
-    conteudo = Column(Text)
     titulo = Column(String(255), nullable=False)
+    conteudo = Column(Text)
     criado_em = Column(DateTime(timezone=True), default=datetime.datetime.now)
     modificado_em = Column(DateTime(timezone=True), default=datetime.datetime.now)
 
+    #relacionamento inverso para o usuario
     autor = relationship("Usuario", back_populates="notas")
 
 
-if __name__  == "__main__":
+class Enderecos(Base):
+    __tablename__ = "enderecos"
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+   
+    rua = Column(String(255), nullable=False)
+    numero = Column(Integer)
+    cep= Column(Integer)
+    
+    moradores = relationship(
+        "Usuario", 
+        secondary=usuario_endereco_associacao,
+        back_populates="usuario_enderecos")
+
+
+
+
+
+if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
-    print("tabelas criadas com sucesso (se não existiam).")
+    print("Tabelas criadas com sucesso (Se não existiam).")
+
+else:
+    print("Erro")
+
+

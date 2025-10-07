@@ -58,6 +58,15 @@ def deletar_usuario(id_usuario: int):
     usuario_deletado = db.query(Usuario).filter(Usuario.id == id_usuario).first()
 
     if usuario_deletado:
+        
+        usuarios = db.query(Usuario).options(joinedload(Usuario.notas)).filter(
+                 Usuario.id== usuario_deletado.id).all()
+        for u in usuarios:
+            for n in u.notas:
+                nota_deletada = db.query(Nota).filter(Nota.id==n.id).first()
+                db.delete(nota_deletada)
+                db.commit()
+                db.flush()        
 
         db.delete(usuario_deletado)
         db.commit()
@@ -65,3 +74,21 @@ def deletar_usuario(id_usuario: int):
         print(f"Usuario: '{usuario_deletado.nome}' removido com sucesso!")       
     else:
         print("Nota com ID % não encontrada." % id_usuario)
+
+def login_de_usuario(usr:Usuario):
+    usuario_logado = db.query(Usuario).filter(
+        Usuario.email ==usr.email and Usuario.senha_hash == usr.senha_hash).first()
+    
+
+    resultado = []
+    if usuario_logado:
+        resultado.append({
+            "id": usuario_logado.id,
+            "usuario": usuario_logado.nome,
+            "email": usuario_logado.email,
+            "criado_em": usuario_logado.criado_em
+        })
+        return resultado
+    
+    else:
+        print("Usuario não encontrado")

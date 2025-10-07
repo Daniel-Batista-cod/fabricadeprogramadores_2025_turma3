@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Remover Usuário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+        h1 {
+            color: #c00;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button {
+            cursor: pointer;
+        }
+        .success {
+            color: green;
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Remover Usuário</h1>
+
+    <label for="userId">ID do usuário:</label><br>
+    <input type="number" id="userId" placeholder="Digite o ID do usuário"><br>
+    <button onclick="removerUsuario()">Remover</button>
+
+    <div id="mensagem"></div>
+
+    <script>
+        function removerUsuario() {
+            const id = document.getElementById("userId").value.trim();
+            const mensagemDiv = document.getElementById("mensagem");
+            mensagemDiv.innerHTML = "";
+
+            if (!id || isNaN(id)) {
+                mensagemDiv.innerHTML = "<p class='error'>Por favor, insira um ID válido.</p>";
+                return;
+            }
+
+            fetch(`/remover/usuarios/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(parseInt(id))
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // Redireciona para index se sucesso
+                    window.location.href = response.url;
+                } else {
+                    return response.json().then(data => {
+                        if (data.success === false) {
+                            mensagemDiv.innerHTML = `<p class='error'>Erro: ${data.error}</p>`;
+                        } else {
+                            mensagemDiv.innerHTML = `<p class='success'>Usuário removido com sucesso!</p>`;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                mensagemDiv.innerHTML = `<p class='error'>Erro na requisição: ${error}</p>`;
+            });
+        }
+    </script>
+
+</body>
+</html>

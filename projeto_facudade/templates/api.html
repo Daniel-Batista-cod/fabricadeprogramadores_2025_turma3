@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Usuários</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .error {
+            color: red;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Usuários</h1>
+    <div id="content"></div>
+
+    <script>
+        fetch("/api/users")
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById("content");
+
+                if (!data.sucess) {
+                    content.innerHTML = `<p class="error">Erro ao carregar usuários: ${data.error}</p>`;
+                    return;
+                }
+
+                const users = data.data;
+
+                if (!Array.isArray(users) || users.length === 0) {
+                    content.innerHTML = "<p>Nenhum usuário encontrado.</p>";
+                    return;
+                }
+
+                let table = `<table><thead><tr>`;
+
+                // Gera cabeçalhos baseado nas chaves do primeiro objeto
+                Object.keys(users[0]).forEach(key => {
+                    table += `<th>${key}</th>`;
+                });
+
+                table += `</tr></thead><tbody>`;
+
+                // Adiciona as linhas da tabela
+                users.forEach(user => {
+                    table += `<tr>`;
+                    Object.values(user).forEach(value => {
+                        table += `<td>${value}</td>`;
+                    });
+                    table += `</tr>`;
+                });
+
+                table += `</tbody></table>`;
+                content.innerHTML = table;
+            })
+            .catch(error => {
+                document.getElementById("content").innerHTML = `<p class="error">Erro na requisição: ${error}</p>`;
+            });
+    </script>
+</body>
+</html>
