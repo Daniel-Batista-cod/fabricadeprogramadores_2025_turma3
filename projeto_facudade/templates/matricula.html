@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrícula de Aluno</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 25px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Formulário de Matrícula</h2>
+        <form id="matriculaForm">
+            <label for="id_usuario">ID do Usuário:</label>
+            <input type="text" id="id_usuario" name="id_usuario" required>
+
+            <label for="id_curso">ID do Curso:</label>
+            <input type="text" id="id_curso" name="id_curso" required>
+
+            <button type="submit">Matricular</button>
+        </form>
+
+        <div class="message" id="messageBox"></div>
+    </div>
+
+    <script>
+        document.getElementById('matriculaForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const id_usuario = document.getElementById('id_usuario').value;
+            const id_curso = document.getElementById('id_curso').value;
+
+            try {
+                const response = await fetch(`/matricula/${id_usuario}/${id_curso}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id_usuario, id_curso })
+                });
+
+                const result = await response.json();
+                const messageBox = document.getElementById('messageBox');
+
+                if (response.ok && result.success !== false) {
+                    messageBox.textContent = "Matrícula realizada com sucesso!";
+                    messageBox.classList.remove("error");
+                } else {
+                    messageBox.textContent = "Erro na matrícula: " + (result.error || "Erro desconhecido.");
+                    messageBox.classList.add("error");
+                }
+
+            } catch (error) {
+                const messageBox = document.getElementById('messageBox');
+                messageBox.textContent = "Erro ao conectar com o servidor.";
+                messageBox.classList.add("error");
+            }
+        });
+    </script>
+</body>
+</html>

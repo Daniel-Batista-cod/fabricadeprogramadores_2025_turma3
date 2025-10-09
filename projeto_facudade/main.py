@@ -1,4 +1,4 @@
-from tabelas import SessionLocal, Usuario, Nota, joinedload
+from tabelas import SessionLocal, Usuario, Nota,Cursos, joinedload
 
 db = SessionLocal()
 
@@ -92,3 +92,17 @@ def login_de_usuario(usr:Usuario):
     
     else:
         print("Usuario não encontrado")
+
+
+def matricular_aluno(id_aluno: int, id_curso: int):
+    curso = db.query(Cursos).filter(Cursos.id == id_curso).first()
+    aluno = db.query(Usuario).filter(Usuario.id == id_aluno).first()
+
+    if (curso and aluno):
+        aluno.usuario_cursos.append(curso)
+        db.commit()
+
+        return print(f'aluno: {aluno.nome} matriculado em {curso.nome} com sucesso!')
+    
+    else:
+        print('Erro ao realizar a matricula.')

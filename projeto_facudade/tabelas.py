@@ -4,21 +4,18 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker, joinedl
 from dotenv import load_dotenv, dotenv_values
 import os
  
-load_dotenv()
+"""load_dotenv()
 variaveis_de_ambiente = dotenv_values()
 DATABASE_URL = variaveis_de_ambiente["DATABASE_URL"]
 
-#DATABASE_URL = os.environ.get('DATABASE_URL')
+"""
+DATABASE_URL= os.environ.get["DATABASE_URL"]
 
-# A engine gerencia as conexões com o banco
 engine = create_engine(DATABASE_URL)
 
-# configuração da sessão
 # a sessão é a nossa "area de trabalho" para conversar com o banco
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base Declarativa
-# Ela faz a ligação entre nossas classes e as tabelas do banco
 Base = declarative_base()
 
 usuario_endereco_associacao = Table(
@@ -28,10 +25,17 @@ usuario_endereco_associacao = Table(
     Column("endereco_id", Integer, ForeignKey("enderecos.id"), primary_key=True),
 )
 
-# mapeamento da tabela 'usuarios' para a classe m'usuario
+usuario_curso_associacao = Table(
+    "usuario_curso_associacao",
+    Base.metadata,
+    Column("usuario_id", Integer, ForeignKey("usuarios.id"), primary_key=True),
+    Column("curso_id", Integer, ForeignKey("cursos.id"), primary_key=True),
+)
+
+
 class Usuario(Base):
 
-    __tablename__ = "usuarios" # O nome exato da tabela no banco de dados
+    __tablename__ = "usuarios" 
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     nome = Column(String(255), nullable=False)
@@ -44,6 +48,10 @@ class Usuario(Base):
         secondary=usuario_endereco_associacao,
         back_populates="moradores"
         )
+    
+    usuario_cursos = relationship("Cursos",
+        secondary=usuario_curso_associacao,
+        back_populates="alunos")
 
 
 class Nota(Base):
@@ -73,8 +81,19 @@ class Enderecos(Base):
         "Usuario", 
         secondary=usuario_endereco_associacao,
         back_populates="usuario_enderecos")
+    
 
+class Cursos(Base):
+    __tablename__ = "cursos"
 
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    nome = Column(Text)
+
+    alunos = relationship(
+        "Usuario",
+        secondary=usuario_curso_associacao,
+        back_populates="usuario_cursos"
+    )
 
 
 
